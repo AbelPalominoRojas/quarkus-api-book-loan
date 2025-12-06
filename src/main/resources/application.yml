@@ -1,0 +1,26 @@
+# Variables
+database-server: localhost                # Your database server address
+database-port: 1433                       # Your database port
+database-name: DB_BookLoanSystem          # Your database name
+database-username: developer              # Your database username
+database-password: D3v#123457             # Your database password
+
+
+# Application configuration
+quarkus:
+  datasource:
+    devservices:
+      enabled: false
+    db-kind: mssql
+    username: ${database-username}
+    password: ${database-password}
+    jdbc:
+      url: jdbc:sqlserver://${database-server}:${database-port};databaseName=${database-name};encrypt=true;trustServerCertificate=true
+
+  hibernate-orm:
+    jdbc:
+      timezone: 'America/Lima'
+    schema-management:
+      strategy: none
+    log:
+      format-sql: true
