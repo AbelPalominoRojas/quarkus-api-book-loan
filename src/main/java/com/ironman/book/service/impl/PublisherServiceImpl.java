@@ -1,18 +1,18 @@
 package com.ironman.book.service.impl;
 
-import com.ironman.book.dto.publisher.PublisherDetailResponse;
-import com.ironman.book.dto.publisher.PublisherRequest;
-import com.ironman.book.dto.publisher.PublisherResponse;
-import com.ironman.book.dto.publisher.PublisherSummaryResponse;
+import com.ironman.book.dto.common.PageResponse;
+import com.ironman.book.dto.publisher.*;
 import com.ironman.book.entity.Publisher;
 import com.ironman.book.mapper.PublisherMapper;
 import com.ironman.book.repository.PublisherRepository;
 import com.ironman.book.service.PublisherService;
 import com.ironman.book.util.StatusEnum;
+import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.ironman.book.exception.ExceptionCatalog.PUBLISHER_NOT_FOUND;
@@ -25,7 +25,7 @@ public class PublisherServiceImpl implements PublisherService {
     private final PublisherMapper publisherMapper;
 
     @Override
-    public List<PublisherSummaryResponse> findAll() {
+    public List<PublisherBriefResponse> findAll() {
         return publisherRepository.findAllEnabledOrderByIdDesc()
                 .stream()
                 .map(publisherMapper::toSummaryResponse)
@@ -68,6 +68,57 @@ public class PublisherServiceImpl implements PublisherService {
         publisherRepository.persist(publisher);
 
         return publisherMapper.toResponse(publisher);
+    }
+
+    @Override
+    public List<PublisherCompactResponse> findAllByName(String name) {
+        return publisherRepository.findAllByNameOrderByNameDesc(name)
+                .stream()
+                .map(publisherMapper::toCompactResponse)
+                .toList();
+    }
+
+    @Override
+    public PageResponse<PublisherOverviewResponse> searchAndPaginate(PublisherPageFilterQuery filterQuery) {
+        LocalDateTime createdAtStart = null;
+        LocalDateTime createdAtEnd = null;
+
+        if (filterQuery.getCreatedAtStart() != null) {
+            createdAtStart = filterQuery.getCreatedAtStart().atStartOfDay();
+        }
+
+        if (filterQuery.getCreatedAtEnd() != null) {
+            createdAtEnd = filterQuery.getCreatedAtEnd().atTime(23, 59, 59);
+        }
+
+        var page = Page.of(filterQuery.getPageNumber() - 1, filterQuery.getPageSize());
+
+        var panacheQuery = publisherRepository.searchEnabledPublishers(
+                filterQuery.getName(),
+                createdAtStart,
+                createdAtEnd,
+                page
+        );
+
+        var content = panacheQuery.list()
+                .stream()
+                .map(publisherMapper::toOverviewResponse)
+                .toList();
+
+        long totalElements = panacheQuery.count();
+        int numberOfElements = content.size();
+        int totalPages = filterQuery.getPageSize() > 0
+                ? (int) Math.ceil((double) totalElements / filterQuery.getPageSize())
+                : 0;
+
+        return PageResponse.<PublisherOverviewResponse>builder()
+                .content(content)
+                .pageNumber(filterQuery.getPageNumber())
+                .pageSize(filterQuery.getPageSize())
+                .numberOfElements(numberOfElements)
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .build();
     }
 
     private Publisher getPublisherOrThrow(Integer id) {

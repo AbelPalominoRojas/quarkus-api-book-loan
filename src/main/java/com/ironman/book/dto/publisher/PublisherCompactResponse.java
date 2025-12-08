@@ -9,7 +9,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PublisherSummaryResponse implements Serializable {
+public class PublisherCompactResponse implements Serializable {
     private Integer id;
+    private String code;
     private String name;
 }

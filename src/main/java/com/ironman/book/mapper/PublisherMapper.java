@@ -27,8 +27,12 @@ public interface PublisherMapper {
     @Mapping(target = "status", ignore = true)
     PublisherOverviewResponse toOverviewResponse(Publisher publisher);
 
+    @Mapping(target = "code", source = "publisherCode")
     @Mapping(target = "name", source = "publisherName")
-    PublisherSummaryResponse toSummaryResponse(Publisher publisher);
+    PublisherCompactResponse toCompactResponse(Publisher publisher);
+
+    @Mapping(target = "name", source = "publisherName")
+    PublisherBriefResponse toSummaryResponse(Publisher publisher);
 
     @Mapping(target = "name", source = "publisherName")
     @Mapping(target = "status", ignore = true)

@@ -23,4 +23,5 @@ quarkus:
     schema-management:
       strategy: none
     log:
-      format-sql: true
+      sql: true
+

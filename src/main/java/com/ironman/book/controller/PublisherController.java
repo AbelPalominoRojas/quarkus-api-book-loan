@@ -1,9 +1,6 @@
 package com.ironman.book.controller;
 
-import com.ironman.book.dto.publisher.PublisherDetailResponse;
-import com.ironman.book.dto.publisher.PublisherRequest;
-import com.ironman.book.dto.publisher.PublisherResponse;
-import com.ironman.book.dto.publisher.PublisherSummaryResponse;
+import com.ironman.book.dto.publisher.*;
 import com.ironman.book.exception.ExceptionResponse;
 import com.ironman.book.service.PublisherService;
 import com.ironman.book.util.HttpStatusCode;
@@ -57,7 +54,7 @@ public class PublisherController {
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(
-                            implementation = PublisherSummaryResponse.class,
+                            implementation = PublisherBriefResponse.class,
                             type = SchemaType.ARRAY
                     )
             )
@@ -238,6 +235,73 @@ public class PublisherController {
         return Response
                 .status(Status.OK)
                 .entity(publisherService.disableById(id))
+                .build();
+    }
+
+
+    @Operation(
+            summary = "Get all publishers by name",
+            description = "Retrieve a list of all publishers matching the given name"
+    )
+    @Tag(name = "Publisher")
+    @APIResponse(
+            responseCode = HttpStatusCode.OK,
+            description = "Successful retrieval of publishers by name",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(
+                            implementation = PublisherBriefResponse.class,
+                            type = SchemaType.ARRAY
+                    )
+            )
+    )
+    @APIResponse(
+            responseCode = HttpStatusCode.INTERNAL_SERVER_ERROR,
+            description = "Internal server error occurred",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ExceptionResponse.class)
+            )
+    )
+    @GET
+    @Path("/search")
+    public Response findAllByName(@QueryParam("name") String name) {
+        return Response
+                .status(Status.OK)
+                .entity(publisherService.findAllByName(name))
+                .build();
+    }
+
+
+    @Operation(
+            summary = "Search and paginate publishers",
+            description = "Search publishers based on filter criteria and paginate the results"
+    )
+    @Tag(name = "Publisher")
+    @APIResponse(
+            responseCode = HttpStatusCode.OK,
+            description = "Successful retrieval of paginated publishers",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(
+                            implementation = PublisherDetailResponse.class
+                    )
+            )
+    )
+    @APIResponse(
+            responseCode = HttpStatusCode.INTERNAL_SERVER_ERROR,
+            description = "Internal server error occurred",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ExceptionResponse.class)
+            )
+    )
+    @GET
+    @Path("/paginate")
+    public Response searchAndPaginate(@BeanParam PublisherPageFilterQuery filterQuery) {
+        return Response
+                .status(Status.OK)
+                .entity(publisherService.searchAndPaginate(filterQuery))
                 .build();
     }
 
