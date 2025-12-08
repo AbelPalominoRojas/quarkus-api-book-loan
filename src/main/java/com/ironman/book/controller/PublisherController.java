@@ -1,5 +1,6 @@
 package com.ironman.book.controller;
 
+import com.ironman.book.dto.common.PageResponse;
 import com.ironman.book.dto.publisher.*;
 import com.ironman.book.exception.ExceptionResponse;
 import com.ironman.book.service.PublisherService;
@@ -284,7 +285,7 @@ public class PublisherController {
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(
-                            implementation = PublisherDetailResponse.class
+                            implementation = PublisherOverviewResponse.class
                     )
             )
     )
@@ -302,6 +303,39 @@ public class PublisherController {
         return Response
                 .status(Status.OK)
                 .entity(publisherService.searchAndPaginate(filterQuery))
+                .build();
+    }
+
+
+    @Operation(
+            summary = "Search, sort, and paginate publishers",
+            description = "Search publishers based on filter criteria, sort the results, and paginate them"
+    )
+    @Tag(name = "Publisher")
+    @APIResponse(
+            responseCode = HttpStatusCode.OK,
+            description = "Successful retrieval of sorted and paginated publishers",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(
+                            implementation = PageResponse.class
+                    )
+            )
+    )
+    @APIResponse(
+            responseCode = HttpStatusCode.INTERNAL_SERVER_ERROR,
+            description = "Internal server error occurred",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ExceptionResponse.class)
+            )
+    )
+    @GET
+    @Path("/sort-paginate")
+    public Response searchSortPaginate(@BeanParam PublisherPageSortFilterQuery filterQuery) {
+        return Response
+                .status(Status.OK)
+                .entity(publisherService.searchSortPaginate(filterQuery))
                 .build();
     }
 

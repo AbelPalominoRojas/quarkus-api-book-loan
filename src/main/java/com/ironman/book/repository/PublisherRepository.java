@@ -6,6 +6,7 @@ import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Parameters;
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.LocalDateTime;
@@ -76,6 +77,41 @@ public class PublisherRepository implements PanacheRepositoryBase<Publisher, Int
         String query = whereClause + " order by id desc";
 
         return find(query, params).page(page);
+    }
+
+    public PanacheQuery<Publisher> searchPageAndSort(
+            String publisherName,
+            LocalDateTime createdAtStart,
+            LocalDateTime createdAtEnd,
+            Page page,
+            Sort sort
+    ) {
+        Map<String, Object> params = new HashMap<>();
+        List<String> predicates = new ArrayList<>();
+
+        if (isNotBlank(publisherName)) {
+            predicates.add("upper(publisherName) like :publisherName");
+            params.put("publisherName", "%" + publisherName.trim().toUpperCase() + "%");
+        }
+
+        if (createdAtStart != null) {
+            predicates.add("createdAt >= :createdAtStart");
+            params.put("createdAtStart", createdAtStart);
+        }
+
+        if (createdAtEnd != null) {
+            predicates.add("createdAt <= :createdAtEnd");
+            params.put("createdAtEnd", createdAtEnd);
+        }
+
+
+        // Always filter by enabled status
+        predicates.add("status = :status");
+        params.put("status", StatusEnum.ENABLED.getValue());
+
+        String whereClause = String.join(" and ", predicates);
+
+        return find(whereClause, sort, params).page(page);
     }
 
 }

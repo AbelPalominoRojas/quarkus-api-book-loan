@@ -1,25 +1,29 @@
 package com.ironman.book.service.impl;
 
+import com.ironman.book.common.PagingAndSortingBuilder;
 import com.ironman.book.dto.common.PageResponse;
 import com.ironman.book.dto.publisher.*;
 import com.ironman.book.entity.Publisher;
+import com.ironman.book.entity.enums.PublisherSortField;
 import com.ironman.book.mapper.PublisherMapper;
 import com.ironman.book.repository.PublisherRepository;
 import com.ironman.book.service.PublisherService;
 import com.ironman.book.util.StatusEnum;
-import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.ironman.book.exception.ExceptionCatalog.PUBLISHER_NOT_FOUND;
+import static io.quarkus.panache.common.Sort.Direction;
 
 @RequiredArgsConstructor
 @ApplicationScoped
-public class PublisherServiceImpl implements PublisherService {
+public class PublisherServiceImpl extends PagingAndSortingBuilder implements PublisherService {
 
     private final PublisherRepository publisherRepository;
     private final PublisherMapper publisherMapper;
@@ -91,7 +95,7 @@ public class PublisherServiceImpl implements PublisherService {
             createdAtEnd = filterQuery.getCreatedAtEnd().atTime(23, 59, 59);
         }
 
-        var page = Page.of(filterQuery.getPageNumber() - 1, filterQuery.getPageSize());
+        var page = buildPage(filterQuery);
 
         var panacheQuery = publisherRepository.searchEnabledPublishers(
                 filterQuery.getName(),
@@ -100,25 +104,40 @@ public class PublisherServiceImpl implements PublisherService {
                 page
         );
 
-        var content = panacheQuery.list()
-                .stream()
-                .map(publisherMapper::toOverviewResponse)
-                .toList();
+        return buildPageResponse(filterQuery, panacheQuery, publisherMapper::toOverviewResponse);
+    }
 
-        long totalElements = panacheQuery.count();
-        int numberOfElements = content.size();
-        int totalPages = filterQuery.getPageSize() > 0
-                ? (int) Math.ceil((double) totalElements / filterQuery.getPageSize())
-                : 0;
+    @Override
+    public PageResponse<PublisherOverviewResponse> searchSortPaginate(PublisherPageSortFilterQuery filterQuery) {
+        LocalDateTime createdAtStart = null;
+        LocalDateTime createdAtEnd = null;
 
-        return PageResponse.<PublisherOverviewResponse>builder()
-                .content(content)
-                .pageNumber(filterQuery.getPageNumber())
-                .pageSize(filterQuery.getPageSize())
-                .numberOfElements(numberOfElements)
-                .totalElements(totalElements)
-                .totalPages(totalPages)
-                .build();
+        if (filterQuery.getCreatedAtStart() != null) {
+            createdAtStart = filterQuery.getCreatedAtStart().atStartOfDay();
+        }
+
+        if (filterQuery.getCreatedAtEnd() != null) {
+            createdAtEnd = filterQuery.getCreatedAtEnd().atTime(23, 59, 59);
+        }
+
+        var page = buildPage(filterQuery);
+
+        Direction direction = Optional.ofNullable(filterQuery.getSortOrder())
+                .filter(order -> order.equalsIgnoreCase("DESC"))
+                .map(order -> Direction.Descending)
+                .orElse(Direction.Ascending);
+        String fieldName = PublisherSortField.getFieldName(filterQuery.getSortField());
+        Sort sort = Sort.by(fieldName, direction);
+
+        var panacheQuery = publisherRepository.searchPageAndSort(
+                filterQuery.getName(),
+                createdAtStart,
+                createdAtEnd,
+                page,
+                sort
+        );
+
+        return buildPageResponse(filterQuery, panacheQuery, publisherMapper::toOverviewResponse);
     }
 
     private Publisher getPublisherOrThrow(Integer id) {

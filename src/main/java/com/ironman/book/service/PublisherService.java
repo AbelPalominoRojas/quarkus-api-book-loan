@@ -20,4 +20,6 @@ public interface PublisherService {
     List<PublisherCompactResponse> findAllByName(String name);
 
     PageResponse<PublisherOverviewResponse> searchAndPaginate(PublisherPageFilterQuery filterQuery);
+
+    PageResponse<PublisherOverviewResponse> searchSortPaginate(PublisherPageSortFilterQuery filterQuery);
 }
