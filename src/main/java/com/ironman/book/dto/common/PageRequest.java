@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@SuperBuilder(builderMethodName = "pageRequestBuilder")
 public class PageRequest implements Serializable {
     @QueryParam("pageNumber")
     @DefaultValue("1")

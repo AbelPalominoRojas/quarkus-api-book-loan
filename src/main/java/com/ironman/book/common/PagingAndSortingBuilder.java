@@ -2,10 +2,14 @@ package com.ironman.book.common;
 
 import com.ironman.book.dto.common.PageRequest;
 import com.ironman.book.dto.common.PageResponse;
+import com.ironman.book.dto.common.SortDirection;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 
+import java.util.Optional;
 import java.util.function.Function;
+
+import static io.quarkus.panache.common.Sort.Direction;
 
 public abstract class PagingAndSortingBuilder {
     public <T, U> PageResponse<U> buildPageResponse(
@@ -39,5 +43,12 @@ public abstract class PagingAndSortingBuilder {
 
     public Page buildPage(PageRequest page) {
         return Page.of(page.getPageNumber() - 1, page.getPageSize());
+    }
+
+    public Direction buildDirection(SortDirection sortOrder) {
+        return Optional.ofNullable(sortOrder)
+                .filter(order -> order == SortDirection.ASC)
+                .map(order -> Direction.Ascending)
+                .orElse(Direction.Descending);
     }
 }

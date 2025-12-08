@@ -20,5 +20,5 @@ public class PageSortRequest extends PageRequest implements Serializable {
     private String sortField;
 
     @QueryParam("sortOrder")
-    private String sortOrder;
+    private SortDirection sortOrder;
 }

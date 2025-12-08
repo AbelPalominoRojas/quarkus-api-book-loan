@@ -2,6 +2,7 @@ package com.ironman.book.service.impl;
 
 import com.ironman.book.common.PagingAndSortingBuilder;
 import com.ironman.book.dto.common.PageResponse;
+import com.ironman.book.dto.common.SortDirection;
 import com.ironman.book.dto.publisher.*;
 import com.ironman.book.entity.Publisher;
 import com.ironman.book.entity.enums.PublisherSortField;
@@ -122,11 +123,13 @@ public class PublisherServiceImpl extends PagingAndSortingBuilder implements Pub
 
         var page = buildPage(filterQuery);
 
-        Direction direction = Optional.ofNullable(filterQuery.getSortOrder())
-                .filter(order -> order.equalsIgnoreCase("DESC"))
-                .map(order -> Direction.Descending)
-                .orElse(Direction.Ascending);
-        String fieldName = PublisherSortField.getFieldName(filterQuery.getSortField());
+        Direction direction = buildDirection(filterQuery.getSortOrder());
+
+        String propertyName = Optional.ofNullable(filterQuery.getSortField())
+                .map(PublisherSortOptionField::getPropertyName)
+                .orElse(null);
+
+        String fieldName = PublisherSortField.getFieldName(propertyName);
         Sort sort = Sort.by(fieldName, direction);
 
         var panacheQuery = publisherRepository.searchPageAndSort(

@@ -1,6 +1,7 @@
 package com.ironman.book.dto.publisher;
 
-import com.ironman.book.dto.common.PageSortRequest;
+import com.ironman.book.dto.common.PageRequest;
+import com.ironman.book.dto.common.SortDirection;
 import jakarta.ws.rs.QueryParam;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class PublisherPageSortFilterQuery extends PageSortRequest implements Serializable {
+public class PublisherPageSortFilterQuery extends PageRequest implements Serializable {
 
     @QueryParam("name")
     private String name;
@@ -26,4 +27,10 @@ public class PublisherPageSortFilterQuery extends PageSortRequest implements Ser
 
     @QueryParam("createdAtEnd")
     private LocalDate createdAtEnd;
+
+    @QueryParam("sortField")
+    private PublisherSortOptionField sortField;
+
+    @QueryParam("sortOrder")
+    private SortDirection sortOrder;
 }
