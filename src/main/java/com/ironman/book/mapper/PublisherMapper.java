@@ -2,6 +2,7 @@ package com.ironman.book.mapper;
 
 import com.ironman.book.dto.publisher.*;
 import com.ironman.book.entity.Publisher;
+import com.ironman.book.entity.projection.PublisherProjection;
 import com.ironman.book.util.StatusEnum;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
@@ -37,6 +38,11 @@ public interface PublisherMapper {
     @Mapping(target = "name", source = "publisherName")
     @Mapping(target = "status", ignore = true)
     PublisherResponse toResponse(Publisher publisher);
+
+    @Mapping(target = "code", source = "publisherCode")
+    @Mapping(target = "name", source = "publisherName")
+    @Mapping(target = "status", ignore = true)
+    PublisherOverviewResponse toOverviewResponse(PublisherProjection publisher);
 
     @Mapping(target = "publisherCode", source = "code")
     @Mapping(target = "publisherName", source = "name")

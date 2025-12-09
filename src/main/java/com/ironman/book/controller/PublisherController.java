@@ -339,4 +339,37 @@ public class PublisherController {
                 .build();
     }
 
+
+    @Operation(
+            summary = "Projection search, sort, and paginate publishers",
+            description = "Projection search publishers based on filter criteria, sort the results, and paginate them"
+    )
+    @Tag(name = "Publisher")
+    @APIResponse(
+            responseCode = HttpStatusCode.OK,
+            description = "Successful retrieval of projected, sorted and paginated publishers",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(
+                            implementation = PageResponse.class
+                    )
+            )
+    )
+    @APIResponse(
+            responseCode = HttpStatusCode.INTERNAL_SERVER_ERROR,
+            description = "Internal server error occurred",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ExceptionResponse.class)
+            )
+    )
+    @GET
+    @Path("/projection-sort-paginate")
+    public Response projectionSearchSortPaginate(@BeanParam PublisherPageSortFilterQuery filterQuery) {
+        return Response
+                .status(Status.OK)
+                .entity(publisherService.projectionSearchPageAndSort(filterQuery))
+                .build();
+    }
+
 }

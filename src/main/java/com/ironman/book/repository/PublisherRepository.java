@@ -1,6 +1,7 @@
 package com.ironman.book.repository;
 
 import com.ironman.book.entity.Publisher;
+import com.ironman.book.entity.projection.PublisherProjection;
 import com.ironman.book.util.StatusEnum;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
@@ -112,6 +113,43 @@ public class PublisherRepository implements PanacheRepositoryBase<Publisher, Int
         String whereClause = String.join(" and ", predicates);
 
         return find(whereClause, sort, params).page(page);
+    }
+
+    public PanacheQuery<PublisherProjection> projectionSearchPageAndSort(
+            String publisherName,
+            LocalDateTime createdAtStart,
+            LocalDateTime createdAtEnd,
+            Page page,
+            Sort sort
+    ) {
+        Map<String, Object> params = new HashMap<>();
+        List<String> predicates = new ArrayList<>();
+
+        if (isNotBlank(publisherName)) {
+            predicates.add("upper(publisherName) like :publisherName");
+            params.put("publisherName", "%" + publisherName.trim().toUpperCase() + "%");
+        }
+
+        if (createdAtStart != null) {
+            predicates.add("createdAt >= :createdAtStart");
+            params.put("createdAtStart", createdAtStart);
+        }
+
+        if (createdAtEnd != null) {
+            predicates.add("createdAt <= :createdAtEnd");
+            params.put("createdAtEnd", createdAtEnd);
+        }
+
+
+        // Always filter by enabled status
+        predicates.add("status = :status");
+        params.put("status", StatusEnum.ENABLED.getValue());
+
+        String whereClause = String.join(" and ", predicates);
+
+        return find(whereClause, sort, params)
+                .page(page)
+                .project(PublisherProjection.class);
     }
 
 }

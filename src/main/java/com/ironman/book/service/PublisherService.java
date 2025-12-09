@@ -22,4 +22,6 @@ public interface PublisherService {
     PageResponse<PublisherOverviewResponse> searchAndPaginate(PublisherPageFilterQuery filterQuery);
 
     PageResponse<PublisherOverviewResponse> searchSortPaginate(PublisherPageSortFilterQuery filterQuery);
+
+    PageResponse<PublisherOverviewResponse> projectionSearchPageAndSort(PublisherPageSortFilterQuery filterQuery);
 }

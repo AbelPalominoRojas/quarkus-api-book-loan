@@ -143,6 +143,41 @@ public class PublisherServiceImpl extends PagingAndSortingBuilder implements Pub
         return buildPageResponse(filterQuery, panacheQuery, publisherMapper::toOverviewResponse);
     }
 
+    @Override
+    public PageResponse<PublisherOverviewResponse> projectionSearchPageAndSort(PublisherPageSortFilterQuery filterQuery) {
+        LocalDateTime createdAtStart = null;
+        LocalDateTime createdAtEnd = null;
+
+        if (filterQuery.getCreatedAtStart() != null) {
+            createdAtStart = filterQuery.getCreatedAtStart().atStartOfDay();
+        }
+
+        if (filterQuery.getCreatedAtEnd() != null) {
+            createdAtEnd = filterQuery.getCreatedAtEnd().atTime(23, 59, 59);
+        }
+
+        var page = buildPage(filterQuery);
+
+        Direction direction = buildDirection(filterQuery.getSortOrder());
+
+        String propertyName = Optional.ofNullable(filterQuery.getSortField())
+                .map(PublisherSortOptionField::getPropertyName)
+                .orElse(null);
+
+        String fieldName = PublisherSortField.getFieldName(propertyName);
+        Sort sort = Sort.by(fieldName, direction);
+
+        var panacheQuery = publisherRepository.projectionSearchPageAndSort(
+                filterQuery.getName(),
+                createdAtStart,
+                createdAtEnd,
+                page,
+                sort
+        );
+
+        return buildPageResponse(filterQuery, panacheQuery, publisherMapper::toOverviewResponse);
+    }
+
     private Publisher getPublisherOrThrow(Integer id) {
         return publisherRepository.findByIdOptional(id)
                 .orElseThrow(() -> PUBLISHER_NOT_FOUND.buildException(id));
