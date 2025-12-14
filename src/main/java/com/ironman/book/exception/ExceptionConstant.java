@@ -10,6 +10,9 @@ public class ExceptionConstant {
     public static final String MESSAGE_INTERNAL_ERROR = "Internal server error. Contact administrator.";
     public static final String MESSAGE_UNEXPECTED_ERROR = "Unexpected error. Please try again later.";
 
+    public static final String MESSAGE_INVALID_DATE_FORMAT = "Invalid date format. Please use YYYY-MM-DD format.";
+
+
     public static final String COMPONENT_PUBLISHER_SERVICE = "Publisher Service";
     public static final String COMPONENT_DATABASE_SERVICE = "Database Service";
 }
