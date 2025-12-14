@@ -365,7 +365,7 @@ public class PublisherController {
     )
     @GET
     @Path("/projection-sort-paginate")
-    public Response projectionSearchSortPaginate(@BeanParam PublisherPageSortFilterQuery filterQuery) {
+    public Response projectionSearchSortPaginate(@Valid @BeanParam PublisherPageSortFilterQuery filterQuery) {
         return Response
                 .status(Status.OK)
                 .entity(publisherService.projectionSearchPageAndSort(filterQuery))
