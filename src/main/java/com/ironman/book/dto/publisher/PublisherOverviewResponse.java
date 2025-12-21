@@ -1,6 +1,5 @@
 package com.ironman.book.dto.publisher;
 
-import com.ironman.book.dto.common.RecordStatusResponse;
 import lombok.*;
 
 import java.io.Serializable;
@@ -15,6 +14,5 @@ public class PublisherOverviewResponse implements Serializable {
     private Integer id;
     private String code;
     private String name;
-    private RecordStatusResponse status;
     private LocalDateTime createdAt;
 }

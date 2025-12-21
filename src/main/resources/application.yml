@@ -25,3 +25,9 @@ quarkus:
     log:
       sql: true
 
+record-status:
+  statuses:
+    - id: 1
+      name: Enabled
+    - id: 0
+      name: Disabled

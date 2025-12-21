@@ -14,18 +14,18 @@ import static org.mapstruct.MappingConstants.ComponentModel;
 @Mapper(
         componentModel = ComponentModel.JAKARTA_CDI,
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        imports = {StatusEnum.class}
+        imports = {StatusEnum.class},
+        uses = {MapRecordStatus.class}
 )
 public interface PublisherMapper {
 
     @Mapping(target = "code", source = "publisherCode")
     @Mapping(target = "name", source = "publisherName")
-    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "status", source = "status")
     PublisherDetailResponse toDetailResponse(Publisher publisher);
 
     @Mapping(target = "code", source = "publisherCode")
     @Mapping(target = "name", source = "publisherName")
-    @Mapping(target = "status", ignore = true)
     PublisherOverviewResponse toOverviewResponse(Publisher publisher);
 
     @Mapping(target = "code", source = "publisherCode")
@@ -36,12 +36,11 @@ public interface PublisherMapper {
     PublisherBriefResponse toSummaryResponse(Publisher publisher);
 
     @Mapping(target = "name", source = "publisherName")
-    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "status", source = "status")
     PublisherResponse toResponse(Publisher publisher);
 
     @Mapping(target = "code", source = "publisherCode")
     @Mapping(target = "name", source = "publisherName")
-    @Mapping(target = "status", ignore = true)
     PublisherOverviewResponse toOverviewResponse(PublisherProjection publisher);
 
     @Mapping(target = "publisherCode", source = "code")
